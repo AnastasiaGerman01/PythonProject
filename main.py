@@ -124,10 +124,81 @@ class Enemy(turtle.Turtle):
         self.hideturtle()
 
 
-def Generate_level():
+#Метод генерации лабиринта
 
+def Generate_level():
     
-   
+    #Метод для подсчёта пустых клеток вокург обрабатываемой клетки
+    def Count(wall):
+        count = 0
+        if maze[wall[0] - 1][wall[1]] == ' ':
+            count += 1
+        if maze[wall[0]][wall[1] - 1] == ' ':
+            count += 1
+        if maze[wall[0] + 1][wall[1]] == ' ':
+            count += 1
+        if maze[wall[0]][wall[1] + 1] == ' ':
+            count += 1
+        return count
+    
+    #Создание лабиринта
+    maze = []
+    for i in range(25):
+        stroka = ['u'] * 25
+        maze.append(stroka)
+    
+    #Определение начальной точки лабиринта
+    begin_x = int(random.random() * 25)
+    begin_y = int(random.random() * 25)
+    if begin_x == 0:
+        begin_x += 1
+    if begin_x == 24:
+        begin_x -= 1
+    if begin_y == 0:
+        begin_y += 1
+    if begin_y == 24:
+        begin_y -= 1
+
+    maze[begin_x][begin_y] = ' '
+    
+    #Добавление в массив стен вокруг обрабатываемой клетки
+    walls = []
+    walls.append([begin_x + 1, begin_y])
+    walls.append([begin_x, begin_y + 1])
+    walls.append([begin_x - 1, begin_y])
+    walls.append([begin_x, begin_y - 1])
+
+    while (len(walls)):
+        #Выбор случайной клетки из ещё не обработанных
+        element = walls[int(random.random() * len(walls)) - 1]
+        #Проверка на то, что клетка не является крайней
+        if element[0] == 0 or element[0] == 24 or element[1] == 0 or element[1] == 24:
+            maze[element[0]][element[1]] = 'X'
+            for i in range(len(walls)):
+                if walls[i] == element:
+                    walls.pop(i)
+                    break
+        else:
+            #Подсчёт количества пустых клеток вокруг обрабатываемой клетки, если количество клеток меньше 2,
+            # то делаем данную клетку проходом лабиринта, иначе - стеной
+            count = Count(element)
+            if count < 2:
+                maze[element[0]][element[1]] = ' '
+                walls.append([element[0] - 1, element[1]])
+                walls.append([element[0], element[1] - 1])
+                walls.append([element[0] + 1, element[1]])
+                walls.append([element[0], element[1] + 1])
+            for i in range(len(walls)):
+                if walls[i] == element:
+                    walls.pop(i)
+                    break
+    # Обрабатываем оставшиеся элементы
+    for i in range(25):
+        for j in range(25):
+            if maze[i][j] == 'u':
+                maze[i][j] = 'X'
+
+    return maze
 
 # Уровни игры
 list_of_levels = [""]
@@ -138,6 +209,8 @@ level_1 = Generate_level()
 spaces = []
 #Массив, в котором хранятся координаты стен лабиринта
 walls1 = []
+
+
 
 #Заполнение массива стен и проходов лабиринта
 for i in range(25):
@@ -153,25 +226,25 @@ spaces.remove(coordinate_person)
 level_1[coordinate_person[0]][coordinate_person[1]] = 'P'
 
 #Добавление дополнительных проходов в лабиринт
-for i in range(70):
-    coordinate_path = walls1[int(random.random() * (len(walls1) - 1))]
-    left = [coordinate_path[0] - 1, coordinate_path[1]]
-    right = [coordinate_path[0] + 1, coordinate_path[1]]
-    up = [coordinate_path[0], coordinate_path[1] - 1]
-    down = [coordinate_path[0], coordinate_path[1] + 1]
-    count_free_cells = 0
-    if left[0] > -1 and level_1[left[0]][left[1]] == ' ':
-        count_free_cells += 1
-    if right[0] < 25 and level_1[right[0]][right[1]] == ' ':
-        count_free_cells += 1
-    if up[1] > -1 and level_1[up[0]][up[1]] == ' ':
-        count_free_cells += 1
-    if down[1] < 25 and level_1[down[0]][down[1]] == ' ':
-        count_free_cells += 1
-    if count_free_cells >= 2:
-        level_1[coordinate_path[0]][coordinate_path[1]] = ' '
-        spaces.append(coordinate_path)
-        walls1.remove(coordinate_path)
+# for i in range(70):
+#     coordinate_path = walls1[int(random.random() * (len(walls1) - 1))]
+#     left = [coordinate_path[0] - 1, coordinate_path[1]]
+#     right = [coordinate_path[0] + 1, coordinate_path[1]]
+#     up = [coordinate_path[0], coordinate_path[1] - 1]
+#     down = [coordinate_path[0], coordinate_path[1] + 1]
+#     count_free_cells = 0
+#     if left[0] > -1 and level_1[left[0]][left[1]] == ' ':
+#         count_free_cells += 1
+#     if right[0] < 25 and level_1[right[0]][right[1]] == ' ':
+#         count_free_cells += 1
+#     if up[1] > -1 and level_1[up[0]][up[1]] == ' ':
+#         count_free_cells += 1
+#     if down[1] < 25 and level_1[down[0]][down[1]] == ' ':
+#         count_free_cells += 1
+#     if count_free_cells >= 2:
+#         level_1[coordinate_path[0]][coordinate_path[1]] = ' '
+#         spaces.append(coordinate_path)
+#         walls1.remove(coordinate_path)
 
 #Определение координат врагов
 
