@@ -16,6 +16,8 @@ turtle.register_shape("wizard.gif")
 turtle.register_shape("box.gif")
 turtle.register_shape("hero.gif")
 
+size_of_field = 24
+
 # Класс поля
 
 class Pen(turtle.Turtle):
@@ -41,20 +43,20 @@ class Player(turtle.Turtle):
 
 # Функции для перемещения игрока по полю
     def go_up(self):
-        if (self.xcor(), self.ycor() + 24) not in walls:
-            self.goto(self.xcor(), self.ycor() + 24)
+        if (self.xcor(), self.ycor() + size_of_field) not in walls:
+            self.goto(self.xcor(), self.ycor() + size_of_field)
 
     def go_down(self):
-        if (self.xcor(), self.ycor() - 24) not in walls:
-            self.goto(self.xcor(), self.ycor() - 24)
+        if (self.xcor(), self.ycor() - size_of_field) not in walls:
+            self.goto(self.xcor(), self.ycor() - size_of_field)
 
     def go_left(self):
-        if (self.xcor() - 24, self.ycor()) not in walls:
-            self.goto(self.xcor() - 24, self.ycor())
+        if (self.xcor() - size_of_field, self.ycor()) not in walls:
+            self.goto(self.xcor() - size_of_field, self.ycor())
 
     def go_right(self):
-        if (self.xcor() + 24, self.ycor()) not in walls:
-            self.goto(self.xcor() + 24, self.ycor())
+        if (self.xcor() + size_of_field, self.ycor()) not in walls:
+            self.goto(self.xcor() + size_of_field, self.ycor())
 
 #Функция,проверяющая находится ли игрок в одной клетке с каким-либо другим объектом
 
@@ -63,7 +65,6 @@ class Player(turtle.Turtle):
         b = self.ycor() - other.ycor()
         distance = math.sqrt((a ** 2) + (b ** 2))
         if distance == 0:
-            print(distance)
             return True
         else:
             return False
@@ -98,25 +99,25 @@ class Enemy(turtle.Turtle):
         self.direction = random.choice(["up", "down", "left", "right"])
 
 # Фукнции перемещения врагов
-    def move(self):
+    def go(self):
         if self.direction == "up":
             dx = 0
-            dy = 24
+            dy = size_of_field
         elif self.direction == "down":
             dx = 0
-            dy = -24
+            dy = -size_of_field
         elif self.direction == "left":
-            dx = -24
+            dx = -size_of_field
             dy = 0
         else:
-            dx = 24
+            dx = size_of_field
             dy = 0
 
         if (self.xcor() + dx, self.ycor() + dy) not in walls:
             self.goto(self.xcor() + dx, self.ycor() + dy)
         else:
             self.direction = random.choice(["up", "down", "left", "right"])
-        turtle.ontimer(self.move, t=random.randint(100, 300))
+        turtle.ontimer(self.go, t=random.randint(100, 300))
 
 # Функция удаления врага
     def destroy(self):
@@ -127,7 +128,7 @@ class Enemy(turtle.Turtle):
 #Метод генерации лабиринта
 
 def Generate_level():
-    
+
     #Метод для подсчёта пустых клеток вокург обрабатываемой клетки
     def Count(wall):
         count = 0
@@ -140,27 +141,27 @@ def Generate_level():
         if maze[wall[0]][wall[1] + 1] == ' ':
             count += 1
         return count
-    
+
     #Создание лабиринта
     maze = []
     for i in range(25):
         stroka = ['u'] * 25
         maze.append(stroka)
-    
+
     #Определение начальной точки лабиринта
     begin_x = int(random.random() * 25)
     begin_y = int(random.random() * 25)
     if begin_x == 0:
         begin_x += 1
-    if begin_x == 24:
+    if begin_x == size_of_field:
         begin_x -= 1
     if begin_y == 0:
         begin_y += 1
-    if begin_y == 24:
+    if begin_y == size_of_field:
         begin_y -= 1
 
     maze[begin_x][begin_y] = ' '
-    
+
     #Добавление в массив стен вокруг обрабатываемой клетки
     walls = []
     walls.append([begin_x + 1, begin_y])
@@ -172,7 +173,7 @@ def Generate_level():
         #Выбор случайной клетки из ещё не обработанных
         element = walls[int(random.random() * len(walls)) - 1]
         #Проверка на то, что клетка не является крайней
-        if element[0] == 0 or element[0] == 24 or element[1] == 0 or element[1] == 24:
+        if element[0] == 0 or element[0] == size_of_field or element[1] == 0 or element[1] == size_of_field:
             maze[element[0]][element[1]] = 'X'
             for i in range(len(walls)):
                 if walls[i] == element:
@@ -210,64 +211,101 @@ spaces = []
 #Массив, в котором хранятся координаты стен лабиринта
 walls1 = []
 
-
-
-#Заполнение массива стен и проходов лабиринта
-for i in range(25):
-    for j in range(25):
-        if level_1[i][j] == ' ':
-            spaces.append([i, j])
-        elif i != 0 and i != 24 and j != 0 and j != 24:
-            walls1.append([i, j])
-
-#Определение начальной координаты персонажа
-coordinate_person = spaces[int(random.random() * len(spaces)) - 1]
-spaces.remove(coordinate_person)
-level_1[coordinate_person[0]][coordinate_person[1]] = 'P'
-
-#Добавление дополнительных проходов в лабиринт
-# for i in range(70):
-#     coordinate_path = walls1[int(random.random() * (len(walls1) - 1))]
-#     left = [coordinate_path[0] - 1, coordinate_path[1]]
-#     right = [coordinate_path[0] + 1, coordinate_path[1]]
-#     up = [coordinate_path[0], coordinate_path[1] - 1]
-#     down = [coordinate_path[0], coordinate_path[1] + 1]
-#     count_free_cells = 0
-#     if left[0] > -1 and level_1[left[0]][left[1]] == ' ':
-#         count_free_cells += 1
-#     if right[0] < 25 and level_1[right[0]][right[1]] == ' ':
-#         count_free_cells += 1
-#     if up[1] > -1 and level_1[up[0]][up[1]] == ' ':
-#         count_free_cells += 1
-#     if down[1] < 25 and level_1[down[0]][down[1]] == ' ':
-#         count_free_cells += 1
-#     if count_free_cells >= 2:
-#         level_1[coordinate_path[0]][coordinate_path[1]] = ' '
-#         spaces.append(coordinate_path)
-#         walls1.remove(coordinate_path)
-
-#Определение координат врагов
-
-for i in range(7):
-    coordinate_enemy = spaces[int(random.random() * (len(spaces) - 1))]
-    level_1[coordinate_enemy[0]][coordinate_enemy[1]] = 'E'
-    spaces.remove(coordinate_enemy)
-
-#Определение координат сокровищ
-
-for i in range(3):
-    coordinate_box = spaces[int(random.random() * (len(spaces) - 1))]
-    level_1[coordinate_box[0]][coordinate_box[1]] = 'T'
-    spaces.remove(coordinate_box)
-
-list_of_levels.append(level_1)
+#Выбор уровня игры
+level_of_difficulty = turtle.textinput("Уровень сложности", "1, 2, 3")
 
 # Массив сокровищ
 treasures = []
 
 # Массив врагов
-
 enemies = []
+
+# Создание объекта класса поля
+pen = Pen()
+
+# Создание объекта класса игрок
+player1 = Player()
+player1.hideturtle()
+
+# Координаты стен
+walls = []
+
+player2 = Player()
+player2.hideturtle()
+
+#Проверка на количество игроков, если check == False, то количество игроков - 1, иначе - 2
+check = False
+quantity_of_players = turtle.textinput("Количество игроков", "1 или 2")
+
+
+class gameApp():
+
+     def Run(self):
+         # Заполнение массива стен и проходов лабиринта
+         for i in range(25):
+             for j in range(25):
+                 if level_1[i][j] == ' ':
+                     spaces.append([i, j])
+                 elif i != 0 and i != size_of_field and j != 0 and j != size_of_field:
+                     walls1.append([i, j])
+
+         # Определение координат врагов
+
+         for i in range(5 * int(level_of_difficulty)):
+             coordinate_enemy = spaces[int(random.random() * (len(spaces) - 1))]
+             level_1[coordinate_enemy[0]][coordinate_enemy[1]] = 'E'
+             spaces.remove(coordinate_enemy)
+
+             # Определение координат сокровищ
+
+         for i in range(3 * int(level_of_difficulty)):
+             coordinate_box = spaces[int(random.random() * (len(spaces) - 1))]
+             level_1[coordinate_box[0]][coordinate_box[1]] = 'T'
+             spaces.remove(coordinate_box)
+
+         list_of_levels.append(level_1)
+
+         # Определение начальной координаты персонажа
+         while True:
+             coordinate_person = spaces[int(random.random() * len(spaces)) - 1]
+             if level_1[coordinate_person[0]][coordinate_person[1]] == 'X':
+                 continue
+             if level_1[coordinate_person[0] + 1][coordinate_person[1]] == 'E':
+                 continue
+             if level_1[coordinate_person[0]][coordinate_person[1] + 1] == 'E':
+                 continue
+             if level_1[coordinate_person[0] - 1][coordinate_person[1]] == 'E':
+                 continue
+             if level_1[coordinate_person[0]][coordinate_person[1] - 1] == 'E':
+                 continue
+             break
+         spaces.remove(coordinate_person)
+         level_1[coordinate_person[0]][coordinate_person[1]] = 'P'
+
+         # Создание второго игрока
+         if int(quantity_of_players) == 2:
+             check = True
+             while True:
+                 coordinate_person = spaces[int(random.random() * len(spaces)) - 1]
+                 if level_1[coordinate_person[0]][coordinate_person[1]] == 'X':
+                     continue
+                 if level_1[coordinate_person[0] + 1][coordinate_person[1]] == 'E':
+                     continue
+                 if level_1[coordinate_person[0]][coordinate_person[1] + 1] == 'E':
+                     continue
+                 if level_1[coordinate_person[0] - 1][coordinate_person[1]] == 'E':
+                     continue
+                 if level_1[coordinate_person[0]][coordinate_person[1] - 1] == 'E':
+                     continue
+                 break
+             spaces.remove(coordinate_person)
+             level_1[coordinate_person[0]][coordinate_person[1]] = 'P2'
+             screen_x = -288 + (coordinate_person[0] * size_of_field)
+             screen_y = 288 - (coordinate_person[1] * size_of_field)
+             player2.hideturtle()
+
+game = gameApp()
+game.Run()
 
 #Функция создание лабиринта и вывода его на экран
 
@@ -278,8 +316,8 @@ def create_maze(level):
 
             # Подсчёт координат расположения на экране
 
-            screen_x = -288 + (x * 24)
-            screen_y = 288 - (y * 24)
+            screen_x = -288 + (x * size_of_field)
+            screen_y = 288 - (y * size_of_field)
 
             if object == "X":
                 pen.goto(screen_x, screen_y)
@@ -293,39 +331,14 @@ def create_maze(level):
                 treasures.append(Treasure(screen_x, screen_y))
             if object == "E":
                 enemies.append(Enemy(screen_x, screen_y))
+            if object == 'P2':
+                player2.shape("hero.gif")
+                player2.goto(screen_x, screen_y)
+                player2.showturtle()
 
 
-# Создание объекта класса поля
-pen = Pen()
 
-# Создание объекта класса игрок
-player1 = Player()
-player1.hideturtle()
-
-# Координаты стен
-walls = []
-
-create_maze(list_of_levels[1])
-
-player2 = Player()
-player2.hideturtle()
-
-#Проверка на количество игроков, если check == False, то количество игроков - 1, иначе - 2
-check = False
-x = turtle.textinput("Количество игроков", "1 или 2")
-
-#Создание второго игрока
-if int(x) == 2:
-    check = True
-    coordinate_person = spaces[int(random.random() * len(spaces)) - 1]
-    spaces.remove(coordinate_person)
-    level_1[coordinate_person[0]][coordinate_person[1]] = 'P'
-    screen_x = -288 + (coordinate_person[0] * 24)
-    screen_y = 288 - (coordinate_person[1] * 24)
-    player2.shape("hero.gif")
-    player2.goto(screen_x, screen_y)
-    player2.showturtle()
-
+create_maze(level_1)
 
 # Связывание клавиатуры и экрана
 
@@ -342,7 +355,7 @@ turtle.onkey(player2.go_right, "d")
 window.tracer(0)
 
 for enemy in enemies:
-    turtle.ontimer(enemy.move, t=250)
+    turtle.ontimer(enemy.go, t=250)
 
 # Главный цикл игры
 
