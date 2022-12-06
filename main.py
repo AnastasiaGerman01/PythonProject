@@ -16,7 +16,7 @@ turtle.register_shape("wizard.gif")
 turtle.register_shape("box.gif")
 turtle.register_shape("hero.gif")
 
-size_of_field = 24
+SIZE_OF_FIELD = 24
 
 # Класс поля
 
@@ -43,24 +43,24 @@ class Player(turtle.Turtle):
 
 # Функции для перемещения игрока по полю
     def go_up(self):
-        if (self.xcor(), self.ycor() + size_of_field) not in walls:
-            self.goto(self.xcor(), self.ycor() + size_of_field)
+        if (self.xcor(), self.ycor() + SIZE_OF_FIELD) not in walls:
+            self.goto(self.xcor(), self.ycor() + SIZE_OF_FIELD)
 
     def go_down(self):
-        if (self.xcor(), self.ycor() - size_of_field) not in walls:
-            self.goto(self.xcor(), self.ycor() - size_of_field)
+        if (self.xcor(), self.ycor() - SIZE_OF_FIELD) not in walls:
+            self.goto(self.xcor(), self.ycor() - SIZE_OF_FIELD)
 
     def go_left(self):
-        if (self.xcor() - size_of_field, self.ycor()) not in walls:
-            self.goto(self.xcor() - size_of_field, self.ycor())
+        if (self.xcor() - SIZE_OF_FIELD, self.ycor()) not in walls:
+            self.goto(self.xcor() - SIZE_OF_FIELD, self.ycor())
 
     def go_right(self):
-        if (self.xcor() + size_of_field, self.ycor()) not in walls:
-            self.goto(self.xcor() + size_of_field, self.ycor())
+        if (self.xcor() + SIZE_OF_FIELD, self.ycor()) not in walls:
+            self.goto(self.xcor() + SIZE_OF_FIELD, self.ycor())
 
 #Функция,проверяющая находится ли игрок в одной клетке с каким-либо другим объектом
 
-    def is_collision(self, other):
+    def check_collision(self, other):
         a = self.xcor() - other.xcor()
         b = self.ycor() - other.ycor()
         distance = math.sqrt((a ** 2) + (b ** 2))
@@ -102,15 +102,15 @@ class Enemy(turtle.Turtle):
     def go(self):
         if self.direction == "up":
             dx = 0
-            dy = size_of_field
+            dy = SIZE_OF_FIELD
         elif self.direction == "down":
             dx = 0
-            dy = -size_of_field
+            dy = -SIZE_OF_FIELD
         elif self.direction == "left":
-            dx = -size_of_field
+            dx = -SIZE_OF_FIELD
             dy = 0
         else:
-            dx = size_of_field
+            dx = SIZE_OF_FIELD
             dy = 0
 
         if (self.xcor() + dx, self.ycor() + dy) not in walls:
@@ -153,11 +153,11 @@ def Generate_level():
     begin_y = int(random.random() * 25)
     if begin_x == 0:
         begin_x += 1
-    if begin_x == size_of_field:
+    if begin_x == SIZE_OF_FIELD:
         begin_x -= 1
     if begin_y == 0:
         begin_y += 1
-    if begin_y == size_of_field:
+    if begin_y == SIZE_OF_FIELD:
         begin_y -= 1
 
     maze[begin_x][begin_y] = ' '
@@ -173,7 +173,7 @@ def Generate_level():
         #Выбор случайной клетки из ещё не обработанных
         element = walls[int(random.random() * len(walls)) - 1]
         #Проверка на то, что клетка не является крайней
-        if element[0] == 0 or element[0] == size_of_field or element[1] == 0 or element[1] == size_of_field:
+        if element[0] == 0 or element[0] == SIZE_OF_FIELD or element[1] == 0 or element[1] == SIZE_OF_FIELD:
             maze[element[0]][element[1]] = 'X'
             for i in range(len(walls)):
                 if walls[i] == element:
@@ -246,7 +246,7 @@ class gameApp():
              for j in range(25):
                  if level_1[i][j] == ' ':
                      spaces.append([i, j])
-                 elif i != 0 and i != size_of_field and j != 0 and j != size_of_field:
+                 elif i != 0 and i != SIZE_OF_FIELD and j != 0 and j != SIZE_OF_FIELD:
                      walls1.append([i, j])
 
          # Определение координат врагов
@@ -300,8 +300,8 @@ class gameApp():
                  break
              spaces.remove(coordinate_person)
              level_1[coordinate_person[0]][coordinate_person[1]] = 'P2'
-             screen_x = -288 + (coordinate_person[0] * size_of_field)
-             screen_y = 288 - (coordinate_person[1] * size_of_field)
+             screen_x = -288 + (coordinate_person[0] * SIZE_OF_FIELD)
+             screen_y = 288 - (coordinate_person[1] * SIZE_OF_FIELD)
              player2.hideturtle()
 
 game = gameApp()
@@ -316,8 +316,8 @@ def create_maze(level):
 
             # Подсчёт координат расположения на экране
 
-            screen_x = -288 + (x * size_of_field)
-            screen_y = 288 - (y * size_of_field)
+            screen_x = -288 + (x * SIZE_OF_FIELD)
+            screen_y = 288 - (y * SIZE_OF_FIELD)
 
             if object == "X":
                 pen.goto(screen_x, screen_y)
@@ -362,14 +362,14 @@ for enemy in enemies:
 while True:
     # Проверка на то, что персонаж 1 дошёл до сокровища
     for t in treasures:
-        if player1.is_collision(t):
+        if player1.check_collision(t):
             player1.gold += t.gold
             t.destroy()
             treasures.remove(t)
 
     # Проверка на то, что персонаж 2 дошёл до сокровища
     for t in treasures:
-        if player2.is_collision(t):
+        if player2.check_collision(t):
             player2.gold += t.gold
             t.destroy()
             treasures.remove(t)
@@ -390,9 +390,9 @@ while True:
 
     # Проверка на то, что персонаж столкнулся с врагом
     for enemy in enemies:
-        if player1.is_collision(enemy):
+        if player1.check_collision(enemy):
             player1.health -= enemy.health
-        if player2.is_collision(enemy):
+        if player2.check_collision(enemy):
             player2.health -= enemy.health
 
     # Проверка на количество здоровья персонажа в случае режима игры 2 героев
