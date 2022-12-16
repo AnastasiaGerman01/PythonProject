@@ -4,6 +4,7 @@ from peewee import *
 
 #Создание базы данных
 db = SqliteDatabase('laptop.db')
+CountQuantity = 0
 
 #Базовый класс
 class BaseModel(Model):
@@ -19,6 +20,7 @@ class Laptop(BaseModel):
 class SearchModel(BaseModel):
     title = CharField() #Ключевое слово, заданное пользователем
     chatid = CharField() #Id чата
+    intid = IntegerField() # Храним номер запроса, чтобы потом иметь доступ к последнему запросу
 
 #Функция, выдающая полный список найденных ссылок
 def find_all_laptops():
@@ -34,25 +36,35 @@ def find_all_search():
 
 #Функция, добавляющая и удаляющая ключевые слова из таблицы
 async def process_search_model(message):
+    global CountQuantity
     search_exist = True
     #Проверяем, существует ли данный объект в таблице
     try:
         search = SearchModel.select().where(SearchModel.title == message.text).get()
         search.delete_instance()
-        await message.answer('Строка поиска {} удалена '.format(message.text))
+        await message.answer('Word {} was deleted'.format(message.text))
         return search_exist
     except DoesNotExist as de:
         search_exist = False
     #Если данного объекта нет, то добавляем его и выводим соответсвующее сообщение пользователю
     if not search_exist:
-        rec = SearchModel(title = message.text, chatid = message.chat.id)
+        rec = SearchModel(title = message.text, chatid = message.chat.id, intid = CountQuantity)
         rec.save()
-        await message.answer('Строка поиска {} добавлена'.format(message.text))
-    #Иначе, просто выводим сообщение
-    else:
-        await message.answer('Строка поиска {} уже есть'.format(message.text))
+        CountQuantity += 1
+        await message.answer('Word {} was added'.format(message.text))
 
     return search_exist
+# Функция, удаляющая последнее слово, введённое пользователем
+async def delete_last_message(message):
+    try:
+        max_index = SearchModel.select(fn.Max(SearchModel.intid))
+        last_message = SearchModel.select().where(SearchModel.intid == max_index).get()
+        word = last_message.title
+        last_message.delete_instance()
+        await message.answer('Word {} was deleted'.format(word))
+    except DoesNotExist:
+        await message.answer('Please add new words!')
+
 
 #Функция, добавляющая новые предложения в таблицу
 async def process_laptops(title, url, chat_id, bot):
