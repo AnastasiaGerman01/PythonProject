@@ -52,7 +52,6 @@ async def process_search_model(message):
         rec.save()
         CountQuantity += 1
         await message.answer('Word {} was added'.format(message.text))
-
     return search_exist
 # Функция, удаляющая последнее слово, введённое пользователем
 async def delete_last_message(message):
