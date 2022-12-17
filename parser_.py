@@ -35,3 +35,4 @@ class ParseLaptop:
                 for search_model in search_models:
                     if element_title.find(search_model.title) >= 0:
                         await process_laptops(element_title, element_url, search_model.chatid, self.bot)
+                    
